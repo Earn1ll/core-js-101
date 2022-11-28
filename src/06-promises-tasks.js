@@ -100,8 +100,23 @@ function getFastestPromise(array) {
  *    });
  *
  */
-function chainPromises(/* array, action */) {
-  throw new Error('Not implemented');
+function chainPromises(Promises, Action) {
+  const promisify = (promises, action, result) => new Promise((resolve) => {
+    if (promises.length) {
+      promises
+        .shift()
+        .then((res) => {
+          resolve(
+            promisify(promises, action, result ? action(result, res) : res),
+          );
+        })
+        .catch(() => resolve(promisify(promises, action, result)));
+    } else {
+      resolve(result);
+    }
+  });
+
+  return promisify(Promises, Action);
 }
 
 module.exports = {
